@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fly.io Integration Formula</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      padding: 40px 20px;
+    }
+    h1 { font-size: 2rem; margin-bottom: 8px; color: #a78bfa; }
+    .subtitle { color: #64748b; margin-bottom: 48px; }
+
+    /* Formula */
+    .formula-box {
+      background: #1e1e2e;
+      border: 1px solid #312e81;
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 48px;
+      text-align: center;
+    }
+    .formula {
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .pill {
+      background: #312e81;
+      border: 1px solid #4338ca;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-weight: 600;
+      color: #c4b5fd;
+      white-space: nowrap;
+    }
+    .pill.green  { background: #052e16; border-color: #16a34a; color: #86efac; }
+    .pill.blue   { background: #0c1a2e; border-color: #2563eb; color: #93c5fd; }
+    .pill.orange { background: #1c0f00; border-color: #ea580c; color: #fdba74; }
+    .pill.red    { background: #1c0a0a; border-color: #dc2626; color: #fca5a5; }
+    .arrow { color: #6366f1; font-size: 1.4rem; font-weight: bold; }
+
+    /* Steps */
+    h2 { font-size: 1.3rem; color: #a78bfa; margin-bottom: 20px; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 48px; }
+    .step {
+      background: #1e1e2e;
+      border: 1px solid #27272a;
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .step-num {
+      width: 32px; height: 32px;
+      background: #4338ca;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+    .step h3 { font-size: 1rem; margin-bottom: 8px; color: #c4b5fd; }
+    .step p  { font-size: 0.875rem; color: #94a3b8; line-height: 1.5; }
+    code {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: #7dd3fc;
+    }
+
+    /* Flow diagram */
+    .flow {
+      background: #1e1e2e;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 48px;
+    }
+    .flow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .flow-row:last-child { margin-bottom: 0; }
+    .node {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      text-align: center;
+    }
+    .node.highlight { border-color: #6366f1; color: #a78bfa; }
+    .down-arrow { text-align: center; color: #4338ca; font-size: 1.2rem; margin: 4px 0; }
+
+    /* Secrets table */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 48px; }
+    th { background: #1e1e2e; color: #a78bfa; padding: 12px 16px; text-align: left; font-size: 0.85rem; border-bottom: 1px solid #312e81; }
+    td { padding: 12px 16px; font-size: 0.85rem; border-bottom: 1px solid #1e1e2e; color: #cbd5e1; }
+    tr:hover td { background: #1e1e2e; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge.github  { background: #1c1c2e; border: 1px solid #6366f1; color: #a78bfa; }
+    .badge.doppler { background: #0f1f0f; border: 1px solid #16a34a; color: #86efac; }
+    .badge.fly     { background: #1c0f00; border: 1px solid #ea580c; color: #fdba74; }
+
+    /* Link back */
+    .back { text-align: center; }
+    .back a {
+      color: #6366f1;
+      text-decoration: none;
+      border: 1px solid #312e81;
+      border-radius: 8px;
+      padding: 10px 24px;
+      display: inline-block;
+      transition: background 0.2s;
+    }
+    .back a:hover { background: #1e1e2e; }
+  </style>
+</head>
+<body>
+
+  <h1>Fly.io Integration Formula</h1>
+  <p class="subtitle">How code goes from your laptop to a live URL</p>
+
+  <!-- Master Formula -->
+  <div class="formula-box">
+    <p style="color:#64748b; font-size:0.8rem; margin-bottom:16px; text-transform:uppercase; letter-spacing:1px;">Master Formula</p>
+    <div class="formula">
+      <span class="pill green">git push</span>
+      <span class="arrow">→</span>
+      <span class="pill blue">GitHub Actions</span>
+      <span class="arrow">→</span>
+      <span class="pill">Doppler</span>
+      <span class="arrow">→</span>
+      <span class="pill orange">flyctl deploy</span>
+      <span class="arrow">→</span>
+      <span class="pill red">Live on Fly.io</span>
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <h2>Step-by-Step Breakdown</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Write Code Locally</h3>
+      <p>Edit <code>app.py</code>, <code>index.html</code>, etc. on your machine. Flask runs on port <code>8080</code>.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>git push → main</h3>
+      <p>Pushing to the <code>main</code> branch triggers the GitHub Actions workflow at <code>.github/workflows/fly-deploy.yml</code>.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>GitHub Actions runs</h3>
+      <p>The runner checks out your code, installs <code>flyctl</code>, and reads <code>FLY_API_TOKEN</code> from GitHub Secrets.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>Docker image built</h3>
+      <p>Fly.io builds the <code>Dockerfile</code> remotely using Depot. Python deps are installed from <code>requirements.txt</code>.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <h3>Machine deployed</h3>
+      <p>Fly.io replaces the old machine with the new image — zero downtime via two machines in <code>lhr</code> (London).</p>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <h3>Live URL ready</h3>
+      <p>App is served at <code>authentication-white-wildflower-5793.fly.dev</code> over HTTPS automatically.</p>
+    </div>
+  </div>
+
+  <!-- Flow Diagram -->
+  <div class="flow">
+    <h2 style="margin-bottom:24px;">Request Flow (Runtime)</h2>
+    <div class="flow-row">
+      <div class="node">User Browser</div>
+      <span class="arrow">→</span>
+      <div class="node highlight">fly.dev (HTTPS)</div>
+      <span class="arrow">→</span>
+      <div class="node">Fly.io Edge (London)</div>
+    </div>
+    <div class="down-arrow">↓</div>
+    <div class="flow-row">
+      <div class="node highlight">Flask app (gunicorn, port 8080)</div>
+    </div>
+    <div class="down-arrow">↓</div>
+    <div class="flow-row">
+      <div class="node">POST /login</div>
+      <span style="color:#64748b;">|</span>
+      <div class="node">POST /register</div>
+      <span style="color:#64748b;">|</span>
+      <div class="node">GET /protected + JWT</div>
+    </div>
+    <div class="down-arrow">↓</div>
+    <div class="flow-row">
+      <div class="node highlight">JWT token returned → stored in localStorage</div>
+    </div>
+  </div>
+
+  <!-- Secrets Table -->
+  <h2>Where Secrets Live</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Secret</th>
+        <th>Stored In</th>
+        <th>Used By</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>FLY_API_TOKEN</code></td>
+        <td><span class="badge github">GitHub Secrets</span></td>
+        <td>GitHub Actions</td>
+        <td>Authenticates <code>flyctl</code> to deploy your app</td>
+      </tr>
+      <tr>
+        <td><code>FLY_API_TOKEN</code></td>
+        <td><span class="badge doppler">Doppler</span></td>
+        <td>Local / other pipelines</td>
+        <td>Same token, managed centrally in Doppler</td>
+      </tr>
+      <tr>
+        <td><code>JWT_SECRET_KEY</code></td>
+        <td><span class="badge fly">Fly.io Secrets</span></td>
+        <td>Flask app at runtime</td>
+        <td>Signs and verifies JWT tokens for users</td>
+      </tr>
+      <tr>
+        <td><code>DOPPLER_TOKEN</code></td>
+        <td><span class="badge github">GitHub Secrets</span></td>
+        <td>GitHub Actions</td>
+        <td>Lets Actions pull secrets from Doppler</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="back">
+    <a href="/">← Back to Test Page</a>
+  </div>
+
+</body>
+</html>

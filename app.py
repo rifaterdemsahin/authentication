@@ -17,6 +17,11 @@ def index():
     return send_from_directory('.', 'index.html')
 
 
+@app.route('/formula')
+def formula():
+    return send_from_directory('.', 'formula.html')
+
+
 @app.route('/register', methods=['POST'])
 def register():
     username = request.json.get('username')
