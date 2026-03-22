@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Semblance — Authentication</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      padding: 40px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 1.8rem; color: #a78bfa; margin-bottom: 6px; }
+    .meta { color: #64748b; font-size: 0.85rem; margin-bottom: 40px; }
+    h2 { font-size: 1.1rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin: 32px 0 14px; }
+
+    /* Status banner */
+    .banner {
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .banner.error   { background: #1c0a0a; border: 1px solid #dc2626; }
+    .banner.warning { background: #1c1000; border: 1px solid #ca8a04; }
+    .banner.ok      { background: #052e16; border: 1px solid #16a34a; }
+    .banner-icon { font-size: 1.4rem; line-height: 1; }
+    .banner-body h3 { font-size: 1rem; margin-bottom: 6px; }
+    .banner.error   .banner-body h3 { color: #fca5a5; }
+    .banner.warning .banner-body h3 { color: #fde68a; }
+    .banner.ok      .banner-body h3 { color: #86efac; }
+    .banner-body p  { font-size: 0.875rem; color: #94a3b8; line-height: 1.6; }
+    code {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: #7dd3fc;
+    }
+
+    /* Status table */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+    th { background: #1e1e2e; color: #a78bfa; padding: 10px 14px; text-align: left; font-size: 0.8rem; border-bottom: 1px solid #312e81; }
+    td { padding: 10px 14px; font-size: 0.85rem; border-bottom: 1px solid #1a1a2e; color: #cbd5e1; vertical-align: top; }
+    tr:hover td { background: #1a1a2e; }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .tag.done    { background: #052e16; border: 1px solid #16a34a; color: #86efac; }
+    .tag.blocked { background: #1c0a0a; border: 1px solid #dc2626; color: #fca5a5; }
+    .tag.pending { background: #1c1000; border: 1px solid #ca8a04; color: #fde68a; }
+
+    /* Fix steps */
+    .fix-steps { counter-reset: steps; }
+    .fix-step {
+      background: #1e1e2e;
+      border: 1px solid #27272a;
+      border-radius: 10px;
+      padding: 18px 20px 18px 60px;
+      margin-bottom: 12px;
+      position: relative;
+      counter-increment: steps;
+    }
+    .fix-step::before {
+      content: counter(steps);
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      width: 28px; height: 28px;
+      background: #312e81;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 0.85rem;
+      color: #c4b5fd;
+      text-align: center;
+      line-height: 28px;
+    }
+    .fix-step h3 { font-size: 0.95rem; color: #c4b5fd; margin-bottom: 6px; }
+    .fix-step p  { font-size: 0.85rem; color: #94a3b8; line-height: 1.6; }
+    .fix-step a  { color: #6366f1; text-decoration: none; }
+    .fix-step a:hover { text-decoration: underline; }
+
+    /* Error log */
+    .log-box {
+      background: #0a0a0f;
+      border: 1px solid #dc2626;
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: #fca5a5;
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+    .log-box .dim { color: #475569; }
+
+    /* Nav */
+    .nav { display: flex; gap: 12px; margin-top: 40px; flex-wrap: wrap; }
+    .nav a {
+      color: #6366f1;
+      text-decoration: none;
+      border: 1px solid #312e81;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+    .nav a:hover { background: #1e1e2e; }
+  </style>
+</head>
+<body>
+
+  <h1>Project Semblance</h1>
+  <p class="meta">Repository: rifaterdemsahin/authentication &nbsp;·&nbsp; Updated: 2026-03-22</p>
+
+  <!-- Active blocker -->
+  <div class="banner error">
+    <div class="banner-icon">🚨</div>
+    <div class="banner-body">
+      <h3>Blocker — GitHub Actions: Account Locked (Billing)</h3>
+      <p>
+        Workflow <strong>"Add Fly.io auto-deploy GitHub Actions workflow" (#5)</strong> failed to start.<br>
+        Error: <em>"The job was not started because your account is locked due to a billing issue."</em><br>
+        All CI/CD pipelines are paused until billing is resolved. Manual deploy via <code>flyctl deploy</code> still works.
+      </p>
+    </div>
+  </div>
+
+  <!-- Error log -->
+  <h2>Error Log</h2>
+  <div class="log-box">
+    <span class="dim">Workflow:  </span> Deploy static content to Pages / Fly Deploy<br>
+    <span class="dim">Run:       </span> #5 — Add Fly.io auto-deploy GitHub Actions workflow<br>
+    <span class="dim">Triggered: </span> push to main<br>
+    <span class="dim">Status:    </span> <span style="color:#dc2626;">FAILED — job never started</span><br>
+    <span class="dim">Reason:    </span> The job was not started because your account is locked due to a billing issue.
+  </div>
+
+  <!-- Component status -->
+  <h2>Component Status</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Component</th>
+        <th>Status</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Flask app (<code>app.py</code>)</td>
+        <td><span class="tag done">Done</span></td>
+        <td>JWT auth, /login, /register, /protected, serves index + formula pages</td>
+      </tr>
+      <tr>
+        <td>Dockerfile</td>
+        <td><span class="tag done">Done</span></td>
+        <td>python:3.11-slim, gunicorn, port 8080</td>
+      </tr>
+      <tr>
+        <td>fly.toml</td>
+        <td><span class="tag done">Done</span></td>
+        <td>App: <code>authentication-white-wildflower-5793</code>, region: lhr</td>
+      </tr>
+      <tr>
+        <td>Fly.io — initial deploy</td>
+        <td><span class="tag done">Done</span></td>
+        <td>Live at <code>authentication-white-wildflower-5793.fly.dev</code></td>
+      </tr>
+      <tr>
+        <td>Doppler secret store</td>
+        <td><span class="tag done">Done</span></td>
+        <td><code>FLY_API_TOKEN</code> stored in project <code>authentication / prd</code></td>
+      </tr>
+      <tr>
+        <td>GitHub Secret</td>
+        <td><span class="tag done">Done</span></td>
+        <td><code>FLY_API_TOKEN</code> and <code>DOPPLER_TOKEN</code> added to repo secrets</td>
+      </tr>
+      <tr>
+        <td>GitHub Actions CI/CD</td>
+        <td><span class="tag blocked">Blocked</span></td>
+        <td>Account locked — billing issue prevents all workflow runs</td>
+      </tr>
+      <tr>
+        <td>Auto-deploy on push</td>
+        <td><span class="tag pending">Pending</span></td>
+        <td>Will work once billing is resolved — workflow is correctly configured</td>
+      </tr>
+      <tr>
+        <td>index.html test page</td>
+        <td><span class="tag done">Done</span></td>
+        <td>Register / Login / Protected test UI at <code>/</code></td>
+      </tr>
+      <tr>
+        <td>formula.html</td>
+        <td><span class="tag done">Done</span></td>
+        <td>Integration flow diagram at <code>/formula</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Fix steps -->
+  <h2>How to Fix the Blocker</h2>
+  <div class="fix-steps">
+    <div class="fix-step">
+      <h3>Fix GitHub billing</h3>
+      <p>
+        Go to <a href="https://github.com/settings/billing" target="_blank">github.com/settings/billing</a>,
+        update your payment method or add credits to unlock your account.
+        Free-tier accounts get locked when Actions minutes are exhausted or a payment fails.
+      </p>
+    </div>
+    <div class="fix-step">
+      <h3>Re-run the failed workflow</h3>
+      <p>
+        After billing is fixed, go to
+        <a href="https://github.com/rifaterdemsahin/authentication/actions" target="_blank">Actions tab</a>,
+        open run <strong>#5</strong>, and click <strong>"Re-run all jobs"</strong>.
+        No code changes needed — the workflow is correct.
+      </p>
+    </div>
+    <div class="fix-step">
+      <h3>Deploy manually in the meantime</h3>
+      <p>
+        CI/CD being down does not stop you from deploying. Run locally:<br><br>
+        <code>flyctl deploy</code><br><br>
+        This bypasses GitHub Actions entirely and pushes directly to Fly.io.
+      </p>
+    </div>
+    <div class="fix-step">
+      <h3>Verify auto-deploy works after fix</h3>
+      <p>
+        Make any small change, push to <code>main</code>, and confirm the
+        <a href="https://github.com/rifaterdemsahin/authentication/actions" target="_blank">Actions tab</a>
+        shows a green run with <code>flyctl deploy --remote-only</code> completing successfully.
+      </p>
+    </div>
+  </div>
+
+  <!-- Warning note -->
+  <div class="banner warning" style="margin-top:32px;">
+    <div class="banner-icon">⚠️</div>
+    <div class="banner-body">
+      <h3>Note on exposed token</h3>
+      <p>
+        A Fly.io API token was shared in plain text earlier in this session.
+        Ensure you have revoked it at
+        <code>fly.io/user/personal_access_tokens</code> and replaced it with a new token
+        in both GitHub Secrets and Doppler before the next deploy.
+      </p>
+    </div>
+  </div>
+
+  <div class="nav">
+    <a href="/">← Test Page</a>
+    <a href="/formula">Integration Formula →</a>
+  </div>
+
+</body>
+</html>

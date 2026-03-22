@@ -22,6 +22,11 @@ def formula():
     return send_from_directory('.', 'formula.html')
 
 
+@app.route('/semblance')
+def semblance():
+    return send_from_directory('.', 'semblance.html')
+
+
 @app.route('/register', methods=['POST'])
 def register():
     username = request.json.get('username')
