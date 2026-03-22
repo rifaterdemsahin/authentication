@@ -1,17 +1,15 @@
-# Fly.io Configuration
-
-app = "your-app-name"
+app = "authentication"
+primary_region = "ord"
 
 [build]
-  builder = "heroku/buildpacks:20"
+  dockerfile = "Dockerfile"
 
 [env]
-  # Set environment variables here
+  PORT = "8080"
 
-[mounts]
-  source = "data"
-  destination = "/data"
-
-[[services]]
-  http_service!
-    # Define your service here
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0

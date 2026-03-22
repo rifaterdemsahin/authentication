@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Test</title>
+  <style>
+    body { font-family: sans-serif; max-width: 500px; margin: 80px auto; padding: 20px; }
+    input { display: block; width: 100%; padding: 8px; margin: 8px 0 16px; box-sizing: border-box; }
+    button { padding: 10px 20px; cursor: pointer; margin-right: 8px; }
+    #result { margin-top: 20px; padding: 12px; background: #f0f0f0; border-radius: 4px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Authentication Test</h1>
+
+  <label>Username</label>
+  <input id="username" type="text" value="testuser">
+  <label>Password</label>
+  <input id="password" type="password" value="testpass">
+
+  <div>
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+    <button onclick="callProtected()">Test Protected</button>
+  </div>
+
+  <div id="result">Results will appear here.</div>
+
+  <script>
+    let token = '';
+
+    async function register() {
+      const res = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u(), password: p() })
+      });
+      show(res.status, await res.json());
+    }
+
+    async function login() {
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u(), password: p() })
+      });
+      const data = await res.json();
+      if (data.access_token) token = data.access_token;
+      show(res.status, data);
+    }
+
+    async function callProtected() {
+      const res = await fetch('/protected', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      show(res.status, await res.json());
+    }
+
+    function u() { return document.getElementById('username').value; }
+    function p() { return document.getElementById('password').value; }
+    function show(status, data) {
+      document.getElementById('result').textContent = status + '\n' + JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
