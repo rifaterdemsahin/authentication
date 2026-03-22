@@ -1,0 +1,17 @@
+# Fly.io Configuration
+
+app = "your-app-name"
+
+[build]
+  builder = "heroku/buildpacks:20"
+
+[env]
+  # Set environment variables here
+
+[mounts]
+  source = "data"
+  destination = "/data"
+
+[[services]]
+  http_service!
+    # Define your service here
