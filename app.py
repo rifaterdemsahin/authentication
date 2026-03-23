@@ -27,6 +27,11 @@ def semblance():
     return send_from_directory('.', 'semblance.html')
 
 
+@app.route('/blocked')
+def blocked():
+    return send_from_directory('.', 'blocked.html')
+
+
 @app.route('/register', methods=['POST'])
 def register():
     username = request.json.get('username')

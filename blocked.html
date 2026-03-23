@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blocked — Pipeline Escalation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8f9fa;
+      color: #1a1a2e;
+      padding: 40px 20px;
+    }
+    .page { max-width: 780px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 2px 20px rgba(0,0,0,0.08); overflow: hidden; }
+
+    /* Header */
+    .header {
+      background: #dc2626;
+      color: white;
+      padding: 32px 40px;
+    }
+    .header .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+    .header h1 { font-size: 1.6rem; margin-bottom: 6px; }
+    .header .sub { font-size: 0.9rem; opacity: 0.85; }
+    .header .meta {
+      margin-top: 20px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      opacity: 0.85;
+    }
+    .header .meta span b { opacity: 1; font-weight: 700; }
+
+    /* Body */
+    .body { padding: 36px 40px; }
+
+    /* Section */
+    .section { margin-bottom: 36px; }
+    .section h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #94a3b8;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* Impact box */
+    .impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .impact-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .impact-card .num { font-size: 1.6rem; font-weight: 700; color: #dc2626; }
+    .impact-card .desc { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
+
+    /* Text blocks */
+    p { font-size: 0.9rem; color: #334155; line-height: 1.7; margin-bottom: 12px; }
+    p:last-child { margin-bottom: 0; }
+
+    /* Error quote */
+    .error-quote {
+      background: #fff5f5;
+      border-left: 4px solid #dc2626;
+      border-radius: 4px;
+      padding: 14px 18px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: #991b1b;
+      margin-bottom: 16px;
+    }
+
+    /* Timeline */
+    .timeline { list-style: none; }
+    .timeline li {
+      display: flex;
+      gap: 16px;
+      padding-bottom: 20px;
+      position: relative;
+    }
+    .timeline li::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 28px;
+      bottom: 0;
+      width: 2px;
+      background: #e2e8f0;
+    }
+    .timeline li:last-child::before { display: none; }
+    .tl-dot {
+      width: 32px; height: 32px; min-width: 32px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: 2px solid #e2e8f0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .tl-dot.done { background: #052e16; border-color: #16a34a; color: #86efac; }
+    .tl-dot.blocked { background: #fff5f5; border-color: #dc2626; color: #dc2626; }
+    .tl-body { padding-top: 6px; }
+    .tl-body strong { font-size: 0.9rem; color: #1e293b; }
+    .tl-body span { font-size: 0.8rem; color: #94a3b8; margin-left: 8px; }
+    .tl-body p { font-size: 0.82rem; color: #64748b; margin-top: 2px; margin-bottom: 0; }
+
+    /* Links for leaders */
+    .link-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .link-card:hover { border-color: #6366f1; background: #fafaff; }
+    .link-icon {
+      width: 36px; height: 36px; min-width: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .link-icon.red    { background: #fff5f5; }
+    .link-icon.purple { background: #f5f3ff; }
+    .link-icon.blue   { background: #eff6ff; }
+    .link-icon.green  { background: #f0fdf4; }
+    .link-icon.orange { background: #fff7ed; }
+    .link-body strong { font-size: 0.88rem; color: #1e293b; display: block; }
+    .link-body span   { font-size: 0.78rem; color: #94a3b8; }
+    .link-action {
+      margin-left: auto;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+    .link-action.fix    { background: #fff5f5; color: #dc2626; border: 1px solid #fecaca; }
+    .link-action.view   { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+    .link-action.open   { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+
+    /* Ask box */
+    .ask-box {
+      background: #fafafa;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 20px 24px;
+    }
+    .ask-box p { margin-bottom: 8px; }
+    .ask-box ul { padding-left: 20px; }
+    .ask-box ul li { font-size: 0.88rem; color: #334155; margin-bottom: 6px; line-height: 1.5; }
+
+    /* Footer */
+    .footer {
+      background: #f8f9fa;
+      border-top: 1px solid #e2e8f0;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer span { font-size: 0.8rem; color: #94a3b8; }
+    .footer-links { display: flex; gap: 12px; }
+    .footer-links a { font-size: 0.8rem; color: #6366f1; text-decoration: none; }
+    .footer-links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="label">Escalation — Pipeline Blocked</div>
+    <h1>Peterfield Sink is Blocked</h1>
+    <div class="sub">CI/CD pipeline halted — GitHub Actions account locked due to billing</div>
+    <div class="meta">
+      <span>Project: <b>authentication</b></span>
+      <span>Date: <b>2026-03-23</b></span>
+      <span>Owner: <b>rifaterdemsahin</b></span>
+      <span>Priority: <b>HIGH</b></span>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- Impact -->
+    <div class="section">
+      <h2>Impact at a Glance</h2>
+      <div class="impact-grid">
+        <div class="impact-card">
+          <div class="num">0</div>
+          <div class="desc">Automated deploys running — all blocked</div>
+        </div>
+        <div class="impact-card">
+          <div class="num">5</div>
+          <div class="desc">GitHub Actions runs failed due to billing lock</div>
+        </div>
+        <div class="impact-card">
+          <div class="num">1</div>
+          <div class="desc">Action needed from leader to unblock</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- What happened -->
+    <div class="section">
+      <h2>What Happened</h2>
+      <p>
+        The authentication service was successfully built, deployed to Fly.io manually, and configured
+        with an automated CI/CD pipeline via GitHub Actions. The pipeline is correctly wired:
+        code push triggers a workflow that fetches secrets from Doppler and runs <code>flyctl deploy</code>.
+      </p>
+      <p>
+        However, every workflow run is immediately rejected with the following error before any job starts:
+      </p>
+      <div class="error-quote">
+        "The job was not started because your account is locked due to a billing issue."
+      </div>
+      <p>
+        No code is broken. The Dockerfile, fly.toml, secrets, and workflow file are all correct.
+        The blocker is entirely a GitHub billing account lock — nothing technical.
+      </p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="section">
+      <h2>What Was Done</h2>
+      <ul class="timeline">
+        <li>
+          <div class="tl-dot done">✓</div>
+          <div class="tl-body">
+            <strong>Flask app built</strong><span>2026-03-22</span>
+            <p>JWT auth, /login, /register, /protected endpoints — app.py, Dockerfile, requirements.txt</p>
+          </div>
+        </li>
+        <li>
+          <div class="tl-dot done">✓</div>
+          <div class="tl-body">
+            <strong>Deployed to Fly.io manually</strong><span>2026-03-22</span>
+            <p>Live at authentication-white-wildflower-5793.fly.dev via <code>flyctl deploy</code></p>
+          </div>
+        </li>
+        <li>
+          <div class="tl-dot done">✓</div>
+          <div class="tl-body">
+            <strong>Secrets configured</strong><span>2026-03-22</span>
+            <p>FLY_API_TOKEN and DOPPLER_TOKEN stored in GitHub Secrets + Doppler</p>
+          </div>
+        </li>
+        <li>
+          <div class="tl-dot done">✓</div>
+          <div class="tl-body">
+            <strong>CI/CD workflow written</strong><span>2026-03-22</span>
+            <p>.github/workflows/fly-deploy.yml — correct and ready to run</p>
+          </div>
+        </li>
+        <li>
+          <div class="tl-dot blocked">✗</div>
+          <div class="tl-body">
+            <strong>GitHub Actions blocked — run #5</strong><span>2026-03-23</span>
+            <p>Account locked due to billing. All pipeline runs rejected before starting.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Links for leaders -->
+    <div class="section">
+      <h2>Links — Submit These to Resolve</h2>
+
+      <a class="link-card" href="https://github.com/settings/billing" target="_blank">
+        <div class="link-icon red">💳</div>
+        <div class="link-body">
+          <strong>GitHub Billing Settings</strong>
+          <span>github.com/settings/billing — fix payment method or add credits</span>
+        </div>
+        <span class="link-action fix">Fix Now</span>
+      </a>
+
+      <a class="link-card" href="https://github.com/rifaterdemsahin/authentication/actions" target="_blank">
+        <div class="link-icon purple">⚙️</div>
+        <div class="link-body">
+          <strong>GitHub Actions — Failed Runs</strong>
+          <span>github.com/rifaterdemsahin/authentication/actions — re-run after billing fixed</span>
+        </div>
+        <span class="link-action view">View Runs</span>
+      </a>
+
+      <a class="link-card" href="https://github.com/rifaterdemsahin/authentication/settings/secrets/actions" target="_blank">
+        <div class="link-icon blue">🔑</div>
+        <div class="link-body">
+          <strong>GitHub Secrets</strong>
+          <span>Verify FLY_API_TOKEN and DOPPLER_TOKEN are set</span>
+        </div>
+        <span class="link-action open">Open</span>
+      </a>
+
+      <a class="link-card" href="https://fly.io/user/personal_access_tokens" target="_blank">
+        <div class="link-icon orange">✈️</div>
+        <div class="link-body">
+          <strong>Fly.io — Personal Access Tokens</strong>
+          <span>Revoke exposed token, generate a new one, update GitHub Secret</span>
+        </div>
+        <span class="link-action fix">Action Needed</span>
+      </a>
+
+      <a class="link-card" href="https://dashboard.doppler.com" target="_blank">
+        <div class="link-icon green">🔒</div>
+        <div class="link-body">
+          <strong>Doppler Dashboard</strong>
+          <span>Verify FLY_API_TOKEN value in project: authentication / config: prd</span>
+        </div>
+        <span class="link-action open">Open</span>
+      </a>
+
+      <a class="link-card" href="https://authentication-white-wildflower-5793.fly.dev/" target="_blank">
+        <div class="link-icon blue">🌐</div>
+        <div class="link-body">
+          <strong>Live App (currently deployed)</strong>
+          <span>authentication-white-wildflower-5793.fly.dev — manually deployed, still live</span>
+        </div>
+        <span class="link-action open">Open</span>
+      </a>
+    </div>
+
+    <!-- Ask -->
+    <div class="section">
+      <h2>Ask from Leadership</h2>
+      <div class="ask-box">
+        <p><strong>To unblock the pipeline, the following is needed:</strong></p>
+        <ul>
+          <li>Resolve the GitHub billing lock at <strong>github.com/settings/billing</strong> (add a payment method or credits)</li>
+          <li>Confirm a new Fly.io API token has been generated and the old exposed one revoked</li>
+          <li>Approve continuation of the deployment pipeline — no code changes required</li>
+        </ul>
+        <p style="margin-top:12px; color:#64748b; font-size:0.82rem;">
+          Once billing is resolved, re-running Actions run #5 will restore full automated CI/CD.
+          Manual deploy via <code>flyctl deploy</code> continues to work in the interim.
+        </p>
+      </div>
+    </div>
+
+  </div><!-- /body -->
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>rifaterdemsahin/authentication · 2026-03-23</span>
+    <div class="footer-links">
+      <a href="/">Test Page</a>
+      <a href="/formula">Formula</a>
+      <a href="/semblance">Semblance</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
